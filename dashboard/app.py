@@ -22,31 +22,31 @@ from charts import monthly_chart, bar_chart, donut_chart, apply_layout
 st.set_page_config(page_title="Retail Sales Intelligence", page_icon="📊", layout="wide")
 st.markdown("""
 <style>
-[data-testid="stSidebar"] {background: #F8FAFC; border-right: 1px solid #E2E8F0;}
 .block-container {padding: 1.25rem 2rem 2rem 2rem; max-width: 1500px;}
-h1 {color: #0F172A; font-size: 2rem !important; margin-bottom: 0.25rem;}
-div[data-testid="stMetric"] {
-    background: #FFFFFF;
-    border: 1px solid #E2E8F0;
-    border-radius: 14px;
-    padding: 16px 18px;
-    box-shadow: 0 4px 14px rgba(15,23,42,0.04);
-}
-div[data-testid="stMetricLabel"] {color: #64748B; font-weight: 600;}
-div[data-testid="stMetricValue"] {color: #0F172A;}
-.stTabs [data-baseweb="tab-list"] {gap: 6px; border-bottom: 1px solid #E2E8F0;}
+.stTabs [data-baseweb="tab-list"] {gap: 6px; border-bottom: 1px solid color-mix(in srgb, var(--text-color) 15%, transparent);}
 .stTabs [data-baseweb="tab"] {height: 44px; padding: 0 14px;}
-.stTabs [aria-selected="true"] {color: #1D4ED8 !important; border-bottom-color: #2563EB;}
 .source-banner {
-    display: inline-block;
-    background: #EFF6FF;
-    color: #1E40AF;
-    border: 1px solid #BFDBFE;
-    border-radius: 999px;
-    padding: 5px 12px;
-    font-size: 0.82rem;
-    margin-bottom: 12px;
+    display:inline-block;
+    background:color-mix(in srgb, var(--primary-color) 12%, var(--background-color));
+    color:var(--primary-color);
+    border:1px solid color-mix(in srgb, var(--primary-color) 35%, var(--background-color));
+    border-radius:999px;
+    padding:5px 12px;
+    font-size:.82rem;
+    margin-bottom:12px;
 }
+[data-testid="stSidebar"] {background-color:var(--secondary-background-color);}
+[data-testid="stAppViewContainer"] {background-color:var(--background-color); color:var(--text-color);}
+div[data-testid="stMetric"] {
+    background-color:var(--secondary-background-color);
+    color:var(--text-color);
+    border:1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+    border-radius:14px;
+    padding:16px 18px;
+}
+div[data-testid="stMetricLabel"] {color:var(--text-color); opacity:.72; font-weight:600;}
+div[data-testid="stMetricValue"] {color:var(--text-color);}
+.stTabs [aria-selected="true"] {color:var(--primary-color) !important; border-bottom-color:var(--primary-color);}
 </style>
 """, unsafe_allow_html=True)
 
@@ -136,9 +136,9 @@ with tabs[0]:
     st.subheader("Performance snapshot")
     c1, c2 = st.columns(2)
     with c1:
-        st.plotly_chart(monthly_chart(filtered, "Sales", "Monthly Revenue", "#2563EB"), width="stretch")
+        st.plotly_chart(monthly_chart(filtered, "Sales", "Monthly Revenue", "#2563EB"), width="stretch", theme="streamlit")
     with c2:
-        st.plotly_chart(monthly_chart(filtered, "Profit", "Monthly Profit", "#14B8A6"), width="stretch")
+        st.plotly_chart(monthly_chart(filtered, "Profit", "Monthly Profit", "#14B8A6"), width="stretch", theme="streamlit")
 
 with tabs[1]:
     c1, c2 = st.columns(2)
@@ -150,13 +150,13 @@ with tabs[1]:
     fig.update_layout(title="Revenue vs Profit", yaxis=dict(title="Revenue"), yaxis2=dict(title="Profit", overlaying="y", side="right"), legend=dict(orientation="h"))
     apply_layout(fig)
     with c1:
-        st.plotly_chart(fig, width="stretch")
+        st.plotly_chart(fig, width="stretch", theme="streamlit")
     with c2:
         trend["Growth"] = trend["Revenue"].pct_change().fillna(0)
         import plotly.express as px
         growth_fig = px.area(trend, x="Month", y="Growth", title="Month-over-Month Sales Growth")
         growth_fig.update_yaxes(tickformat=".0%")
-        st.plotly_chart(apply_layout(growth_fig), width="stretch")
+        st.plotly_chart(apply_layout(growth_fig), width="stretch", theme="streamlit")
     seasonality = monthly_seasonality(filtered)
     if not seasonality.empty:
         import plotly.express as px
@@ -167,45 +167,45 @@ with tabs[1]:
             color="Seasonality Index", color_continuous_scale=["#BFDBFE", "#1D4ED8"],
         )
         seasonality_fig.add_hline(y=1, line_dash="dash", line_color="#64748B")
-        st.plotly_chart(apply_layout(seasonality_fig), width="stretch")
+        st.plotly_chart(apply_layout(seasonality_fig), width="stretch", theme="streamlit")
 
 with tabs[2]:
     product_profit = filtered.groupby("Product Name", observed=True)["Profit"].sum().nlargest(10).reset_index()
     product_loss = filtered.groupby("Product Name", observed=True)["Profit"].sum().nsmallest(10).reset_index()
     c1, c2 = st.columns(2)
     with c1:
-        st.plotly_chart(bar_chart(product_profit, "Profit", "Product Name", "Top 10 Products by Profit", True), width="stretch")
+        st.plotly_chart(bar_chart(product_profit, "Profit", "Product Name", "Top 10 Products by Profit", True), width="stretch", theme="streamlit")
     with c2:
-        st.plotly_chart(bar_chart(product_loss, "Profit", "Product Name", "Bottom 10 Products by Profit", True, "#EF4444"), width="stretch")
+        st.plotly_chart(bar_chart(product_loss, "Profit", "Product Name", "Bottom 10 Products by Profit", True, "#EF4444"), width="stretch", theme="streamlit")
     c1, c2 = st.columns(2)
     category_sales = filtered.groupby("Category", observed=True)["Sales"].sum().reset_index()
     subcategory_profit = filtered.groupby("Sub-Category", observed=True)["Profit"].sum().sort_values().reset_index()
     with c1:
-        st.plotly_chart(donut_chart(category_sales, "Category", "Sales", "Category Sales"), width="stretch")
+        st.plotly_chart(donut_chart(category_sales, "Category", "Sales", "Category Sales"), width="stretch", theme="streamlit")
     with c2:
-        st.plotly_chart(bar_chart(subcategory_profit, "Profit", "Sub-Category", "Subcategory Profitability", True), width="stretch")
+        st.plotly_chart(bar_chart(subcategory_profit, "Profit", "Sub-Category", "Subcategory Profitability", True), width="stretch", theme="streamlit")
 
 with tabs[3]:
     region_data = filtered.groupby("Region", observed=True).agg(Revenue=("Sales", "sum"), Profit=("Profit", "sum")).reset_index()
     state_data = filtered.groupby("State", observed=True)["Sales"].sum().nlargest(15).reset_index()
     c1, c2 = st.columns(2)
     with c1:
-        st.plotly_chart(bar_chart(region_data, "Region", "Revenue", "Revenue by Region"), width="stretch")
+        st.plotly_chart(bar_chart(region_data, "Region", "Revenue", "Revenue by Region"), width="stretch", theme="streamlit")
     with c2:
-        st.plotly_chart(bar_chart(region_data, "Region", "Profit", "Profit by Region", color="#14B8A6"), width="stretch")
-    st.plotly_chart(bar_chart(state_data, "Sales", "State", "Top 15 States by Sales", True), width="stretch")
+        st.plotly_chart(bar_chart(region_data, "Region", "Profit", "Profit by Region", color="#14B8A6"), width="stretch", theme="streamlit")
+    st.plotly_chart(bar_chart(state_data, "Sales", "State", "Top 15 States by Sales", True), width="stretch", theme="streamlit")
 
 with tabs[4]:
     segment_data = filtered.groupby("Segment", observed=True)["Sales"].sum().reset_index()
     customer_data = filtered.groupby(["Customer ID", "Customer Name"], observed=True)["Sales"].sum().nlargest(10).reset_index()
     c1, c2 = st.columns(2)
     with c1:
-        st.plotly_chart(donut_chart(segment_data, "Segment", "Sales", "Revenue by Customer Segment"), width="stretch")
+        st.plotly_chart(donut_chart(segment_data, "Segment", "Sales", "Revenue by Customer Segment"), width="stretch", theme="streamlit")
     with c2:
-        st.plotly_chart(bar_chart(customer_data, "Sales", "Customer Name", "Top Customers", True), width="stretch")
+        st.plotly_chart(bar_chart(customer_data, "Sales", "Customer Name", "Top Customers", True), width="stretch", theme="streamlit")
     order_counts = filtered.groupby("Order ID", observed=True).size().reset_index(name="Line Items")
     import plotly.express as px
-    st.plotly_chart(apply_layout(px.histogram(order_counts, x="Line Items", nbins=10, title="Line Items per Order")), width="stretch")
+    st.plotly_chart(apply_layout(px.histogram(order_counts, x="Line Items", nbins=10, title="Line Items per Order")), width="stretch", theme="streamlit")
 
 with tabs[5]:
     st.subheader("Customer value segments")
@@ -223,11 +223,13 @@ with tabs[5]:
             st.plotly_chart(
                 donut_chart(segment_summary, "RFM Segment", "Customers", "Customers by RFM Segment"),
                 width="stretch",
+                theme="streamlit",
             )
         with c2:
             st.plotly_chart(
                 bar_chart(segment_summary, "Revenue", "RFM Segment", "Revenue by RFM Segment", True),
                 width="stretch",
+                theme="streamlit",
             )
         st.caption("Recency, order frequency, and monetary sales are scored into quartiles. Segments describe the currently filtered dataset.")
         st.dataframe(
@@ -254,7 +256,7 @@ with tabs[6]:
                     hoverinfo="skip", showlegend=True, name="Forecast interval",
                 ))
             fig.update_layout(title="Historical Sales and 3-Month Baseline Forecast", yaxis_title="Revenue")
-            st.plotly_chart(apply_layout(fig), width="stretch")
+            st.plotly_chart(apply_layout(fig), width="stretch", theme="streamlit")
             st.caption(f"{forecast_meta['method']}. {forecast_meta['limitations']}")
             evaluation = evaluate_monthly_forecast(filtered)
             score_cols = st.columns(3)

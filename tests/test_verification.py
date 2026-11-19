@@ -36,6 +36,13 @@ def test_region_and_date_filters_update_kpis():
     assert dated["Total Revenue"] == "$250,128"
 
 
+def test_dashboard_uses_streamlit_theme_without_extra_appearance_control():
+    app = AppTest.from_file(str(ROOT / "dashboard" / "app.py"), default_timeout=30).run()
+    assert not app.exception
+    assert not any(radio.label == "Appearance" for radio in app.get("radio"))
+    assert {metric.label: metric.value for metric in app.metric}["Total Revenue"] == "$2,297,201"
+
+
 def test_sql_scripts_execute_against_cleaned_csv():
     connection = duckdb.connect()
     frame = pd.read_csv(ROOT / "data" / "processed" / "cleaned_superstore.csv")

@@ -30,6 +30,7 @@ The dataset is public demonstration data; do not treat it as a live company's op
 - Monthly revenue and profit trends, sales growth, and calendar-month seasonality index
 - Product, category, subcategory, regional, state, and customer analysis
 - Global filters for date, region, state, category, subcategory, customer segment, and shipping mode
+- Adapts to Streamlit's active light/dark theme for the dashboard, controls, KPI cards, and charts
 - Searchable and paginated transaction explorer with filtered CSV export
 
 ### Customer Segmentation

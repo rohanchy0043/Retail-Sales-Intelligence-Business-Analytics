@@ -14,6 +14,7 @@ from src.forecasting import evaluate_monthly_forecast, forecast_monthly_sales
 from src.insights import build_insights
 from src.reporting import generate_summary_csv, generate_summary_pdf
 from dashboard.charts import bar_chart
+from dashboard.charts import monthly_chart
 
 
 def test_kpis_are_independent_calculations():
@@ -129,3 +130,10 @@ def test_horizontal_bar_chart_keeps_numeric_axis_horizontal():
     chart = bar_chart(pd.DataFrame({"Revenue": [120.0], "Region": ["West"]}), "Revenue", "Region", "Revenue", True)
     assert list(chart.data[0].x) == [120.0]
     assert list(chart.data[0].y) == ["West"]
+
+
+def test_chart_does_not_lock_colors_to_light_or_dark_mode():
+    frame = pd.DataFrame({"Month": ["2026-01"], "Sales": [100]})
+    chart = monthly_chart(frame, "Sales", "Revenue", "#2563EB")
+    assert chart.layout.paper_bgcolor is None
+    assert chart.layout.plot_bgcolor is None
